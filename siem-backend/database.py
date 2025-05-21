@@ -68,3 +68,31 @@ def insert_log(source, message, timestamp):
         conn.close()
     except Exception as e:
         print("Error inserting log:", e)
+
+
+def get_alerts(alert_type=None, start_time=None, end_time=None):
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    query = "SELECT * FROM alerts WHERE TRUE"
+    params = []
+
+    if alert_type:
+        query += " AND type = %s"
+        params.append(alert_type)
+
+    if start_time:
+        query += " AND timestamp >= %s"
+        params.append(start_time)
+
+    if end_time:
+        query += " AND timestamp <= %s"
+        params.append(end_time)
+
+    query += " ORDER BY timestamp DESC LIMIT 100"
+
+    cursor.execute(query, params)
+    alerts = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return alerts
