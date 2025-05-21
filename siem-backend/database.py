@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
+from datetime import datetime
 
 # Change these for your setup
 DB_HOST = "localhost"
@@ -17,6 +18,39 @@ def get_connection():
         user=DB_USER,
         password=DB_PASSWORD
     )
+
+
+def get_logs(source=None, ip=None, start_time=None, end_time=None):
+    conn = get_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Base query
+    query = "SELECT * FROM logs WHERE TRUE"
+    params = []
+
+    if source:
+        query += " AND source = %s"
+        params.append(source)
+
+    if ip:
+        query += " AND parsed_fields->>'ip' = %s"
+        params.append(ip)
+
+    if start_time:
+        query += " AND timestamp >= %s"
+        params.append(start_time)
+
+    if end_time:
+        query += " AND timestamp <= %s"
+        params.append(end_time)
+
+    query += " ORDER BY timestamp DESC LIMIT 100"
+
+    cursor.execute(query, params)
+    logs = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return logs
 
 def insert_log(source, message, timestamp):
     from log_parser import parse_log  # import locally to avoid circular import
