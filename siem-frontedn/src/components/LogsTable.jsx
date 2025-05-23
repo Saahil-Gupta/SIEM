@@ -17,19 +17,19 @@ export function LogsTable() {
     );
 
     return (
-        <div className="bg-white rounded shadow p-4">
-        <h2 className="text-lg font-semibold mb-2">Recent Logs</h2>
+        <div className="bg-black rounded shadow p-4">
+        <h2 className="text-lg font-semibold mb-2 text-green-400">Recent Logs</h2>
 
         <input
             type="text"
             placeholder="Search logs..."
-            className="mb-4 px-3 py-2 border rounded w-full"
+            className="mb-4 px-3 py-2 border rounded w-full text-black"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
         />
 
-        <table className="w-full text-sm">
-            <thead className="bg-gray-200">
+        <table className="w-full text-sm text-white">
+            <thead className="bg-red-800">
             <tr>
                 <th className="text-left px-2 py-1">Source</th>
                 <th className="text-left px-2 py-1">Message</th>
@@ -41,7 +41,7 @@ export function LogsTable() {
                 const isSSH = log.source === "ssh";
                 const isApache = log.source === "apache";
 
-                const rowClass = isSSH ? "bg-red-50" : isApache ? "bg-yellow-50" : "";
+                const rowClass = isSSH ? "bg-red-900" : isApache ? "bg-green-900" : "";
 
                 return (
                 <tr key={log.id} className={`border-b ${rowClass}`}>
