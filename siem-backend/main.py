@@ -6,8 +6,33 @@ from database import insert_log
 from database import get_logs, get_alerts
 from alert_engine import detect_alerts
 from apscheduler.schedulers.background import BackgroundScheduler
+from contextlib import asynccontextmanager
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(detect_alerts, "interval", minutes=5)
+    scheduler.start()
+    print("🔄 Alert detection job scheduled every 5 minutes.")
+    try:
+        yield
+    finally:
+        scheduler.shutdown()
+        print("🛑 Scheduler shut down.")
+
+app = FastAPI(lifespan=lifespan)
+
+
+# CORS fix
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # your frontend port
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class RawLog(BaseModel):
     source: str
@@ -44,9 +69,7 @@ def fetch_alerts(
     return {"count": len(alerts), "alerts": alerts}
 
 # Start background job scheduler on app startup
-@app.on_event("startup")
-def start_scheduler():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(detect_alerts, "interval", minutes=5)
-    scheduler.start()
-    print("🔄 Alert detection job scheduled every 5 minutes.")
+
+
+
+# uvicorn main:app --reload

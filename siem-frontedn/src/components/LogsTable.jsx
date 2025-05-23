@@ -16,9 +16,28 @@ export function LogsTable() {
         log.source.toLowerCase().includes(filter.toLowerCase())
     );
 
+    const exportToCSV = () => {
+        const headers = ["Source", "Message", "Timestamp"];
+        const rows = filteredLogs.map(log => [
+        log.source,
+        log.message,
+        new Date(log.timestamp).toLocaleString()
+        ]);
+        const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "logs.csv");
+        link.click();
+    };
+
     return (
         <div className="bg-black rounded shadow p-4">
-        <h2 className="text-lg font-semibold mb-2 text-green-400">Recent Logs</h2>
+        <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold text-green-400">Recent Logs</h2>
+            <button onClick={exportToCSV} className="text-sm bg-green-700 text-white px-3 py-1 rounded hover:bg-green-600">Export CSV</button>
+        </div>
 
         <input
             type="text"
