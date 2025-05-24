@@ -2,13 +2,15 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+import os
 
-# Change these for your setup
-DB_HOST = "localhost"
-DB_PORT = "5432"
-DB_NAME = "siem"
-DB_USER = "postgres"
-DB_PASSWORD = "Saahil2005@"
+load_dotenv()
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 
 def get_connection():
     return psycopg2.connect(
